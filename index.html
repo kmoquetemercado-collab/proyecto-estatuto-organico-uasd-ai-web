@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot UASD - Estatuto Orgánico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --primary-dark: #764ba2;
+            --secondary: #f093fb;
+            --success: #4ade80;
+            --warning: #facc15;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f3f4f6;
+            --border: #e5e7eb;
+            --text: #111827;
+            --text-light: #6b7280;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            max-height: 800px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-title h1 {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .header-title p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .btn-clear {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-clear:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-clear:active {
+            transform: scale(0.95);
+        }
+
+        .chat-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .welcome-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+
+        .welcome-section h2 {
+            font-size: 28px;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .welcome-section p {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            max-width: 400px;
+        }
+
+        .message-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #f9fafb;
+        }
+
+        .message-list.hidden {
+            display: none;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot,
+        .message.error {
+            justify-content: flex-start;
+        }
+
+        .message-avatar {
+            font-size: 24px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-width: 70%;
+        }
+
+        .message.user .message-content {
+            align-items: flex-end;
+        }
+
+        .message.bot .message-content,
+        .message.error .message-content {
+            align-items: flex-start;
+        }
+
+        .message-text {
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            font-size: 14px;
+        }
+
+        .message.user .message-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-radius: 12px 4px 12px 12px;
+        }
+
+        .message.bot .message-text {
+            background: white;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 4px 12px 12px 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .message.error .message-text {
+            background: #fee;
+            color: var(--danger);
+            border-radius: 4px 12px 12px 12px;
+            border: 1px solid #fca5a5;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: var(--text-light);
+            padding: 0 4px;
+        }
+
+        .message.user .message-time {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .suggested-questions {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .suggested-questions h3 {
+            font-size: 16px;
+            color: var(--text);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .questions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+
+        .question-btn {
+            background: white;
+            border: 2px solid var(--border);
+            color: var(--text);
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: left;
+            transition: all 0.3s ease;
+            line-height: 1.4;
+        }
+
+        .question-btn:hover {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.05);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .question-btn:active {
+            transform: translateY(0);
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 8px;
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-field:disabled {
+            background: var(--light);
+            color: var(--text-light);
+            cursor: not-allowed;
+        }
+
+        .send-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .error-message {
+            background: #fee;
+            color: var(--danger);
+            padding: 12px 16px;
+            border-left: 4px solid var(--danger);
+            margin: 0 16px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                height: 100vh;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+
+            .chat-header {
+                padding: 12px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-title h1 {
+                font-size: 20px;
+            }
+
+            .header-title p {
+                font-size: 11px;
+            }
+
+            .btn-clear {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+
+            .welcome-section {
+                padding: 30px 15px;
+            }
+
+            .welcome-section h2 {
+                font-size: 24px;
+            }
+
+            .welcome-section p {
+                font-size: 14px;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .message-avatar {
+                font-size: 20px;
+                width: 28px;
+                height: 28px;
+            }
+
+            .message-text {
+                font-size: 13px;
+                padding: 10px 14px;
+            }
+
+            .questions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .question-btn {
+                font-size: 12px;
+                padding: 10px 14px;
+            }
+
+            .chat-input {
+                padding: 12px;
+                gap: 6px;
+            }
+
+            .input-field {
+                font-size: 13px;
+                padding: 10px 12px;
+            }
+
+            .send-btn {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="chat-header">
+            <div class="header-title">
+                <h1>🎓 Chatbot UASD</h1>
+                <p>Estatuto Orgánico - Sistema de Consultas Inteligente</p>
+            </div>
+            <button class="btn-clear" onclick="clearChat()">🗑️ Limpiar</button>
+        </header>
+
+        <!-- Content -->
+        <div class="chat-content">
+            <!-- Welcome Section -->
+            <div id="welcomeSection" class="welcome-section">
+                <h2>Bienvenido al Chatbot UASD</h2>
+                <p>Haz preguntas sobre el Estatuto Orgánico de la Universidad Autónoma de Santo Domingo</p>
+                <div class="suggested-questions">
+                    <h3>Preguntas Frecuentes</h3>
+                    <div class="questions-grid" id="suggestedQuestionsContainer"></div>
+                </div>
+            </div>
+
+            <!-- Messages List (hidden initially) -->
+            <div id="messageList" class="message-list hidden"></div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input">
+            <input 
+                type="text" 
+                id="inputField" 
+                class="input-field" 
+                placeholder="Escribe tu pregunta aquí..."
+                onkeypress="handleKeyPress(event)"
+            >
+            <button class="send-btn" onclick="sendMessage()" id="sendBtn">📤</button>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:5000/api/chat';
+
+        // Suggested Questions Data
+        const suggestedQuestions = [
+            { id: 1, text: '¿Qué es la Universidad Autónoma de Santo Domingo?' },
+            { id: 2, text: '¿Cuál es la misión de la UASD?' },
+            { id: 3, text: '¿Cuáles son los fines de la Universidad?' },
+            { id: 4, text: '¿Cómo está organizada la Universidad?' },
+            { id: 5, text: '¿Qué es el Claustro Mayor?' },
+            { id: 6, text: '¿Cuáles son los derechos de los estudiantes?' },
+            { id: 7, text: '¿Qué establece el Estatuto sobre la investigación?' },
+            { id: 8, text: '¿Cuáles son las funciones del Rector?' },
+        ];
+
+        // DOM Elements
+        const messageList = document.getElementById('messageList');
+        const welcomeSection = document.getElementById('welcomeSection');
+        const inputField = document.getElementById('inputField');
+        const sendBtn = document.getElementById('sendBtn');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSuggestedQuestions();
+            checkServerConnection();
+        });
+
+        // Load Suggested Questions
+        function loadSuggestedQuestions() {
+            const container = document.getElementById('suggestedQuestionsContainer');
+            container.innerHTML = '';
+
+            const randomQuestions = suggestedQuestions.sort(() => 0.5 - Math.random()).slice(0, 6);
+
+            randomQuestions.forEach(question => {
+                const btn = document.createElement('button');
+                btn.className = 'question-btn';
+                btn.textContent = question.text;
+                btn.onclick = () => sendQuestion(question.text);
+                container.appendChild(btn);
+            });
+        }
+
+        // Check Server Connection
+        async function checkServerConnection() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (!response.ok) {
+                    showError('No se puede conectar con el servidor');
+                }
+            } catch (error) {
+                showError('Error de conexión. Asegúrate que el backend está ejecutándose en puerto 5000');
+            }
+        }
+
+        // Send Message
+        async function sendMessage() {
+            const question = inputField.value.trim();
+            if (!question) return;
+
+            await sendQuestion(question);
+        }
+
+        // Send Question
+        async function sendQuestion(question) {
+            if (!question.trim()) return;
+
+            // Show message list and hide welcome section
+            if (welcomeSection.style.display !== 'none') {
+                welcomeSection.style.display = 'none';
+                messageList.classList.remove('hidden');
+            }
+
+            // Add user message
+            addMessage(question, 'user');
+            inputField.value = '';
+            inputField.focus();
+
+            // Show loading state
+            sendBtn.disabled = true;
+            const loadingSpinner = document.createElement('div');
+            loadingSpinner.className = 'spinner';
+            sendBtn.innerHTML = '';
+            sendBtn.appendChild(loadingSpinner);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/message`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ question })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Error al procesar la pregunta');
+                }
+
+                // Add bot response
+                addMessage(data.response, 'bot');
+
+            } catch (error) {
+                showError(error.message);
+                addMessage(`Error: ${error.message}`, 'error');
+            } finally {
+                // Reset button
+                sendBtn.disabled = false;
+                sendBtn.textContent = '📤';
+            }
+        }
+
+        // Add Message to List
+        function addMessage(text, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+
+            const avatar = type === 'user' ? '👤' : type === 'error' ? '❌' : '🤖';
+            const time = new Date().toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    <p class="message-text">${escapeHtml(text)}</p>
+                    <span class="message-time">${time}</span>
+                </div>
+            `;
+
+            messageList.appendChild(messageDiv);
+            messageList.scrollTop = messageList.scrollHeight;
+        }
+
+        // Show Error
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // Clear Chat
+        function clearChat() {
+            messageList.innerHTML = '';
+            messageList.classList.add('hidden');
+            welcomeSection.style.display = 'flex';
+            inputField.value = '';
+            errorMessage.style.display = 'none';
+            loadSuggestedQuestions();
+        }
+
+        // Handle Enter Key
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !sendBtn.disabled) {
+                sendMessage();
+            }
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>
